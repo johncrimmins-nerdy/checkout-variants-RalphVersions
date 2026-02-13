@@ -1,0 +1,281 @@
+---
+description: Ensures frontend unit test files follow our Testing Library, Jest, and naming standards
+globs: "*.test.ts,*.test.tsx,*.spec.ts,*.spec.tsx"
+alwaysApply: false
+---
+
+# Jest + React Testing Library Testing Standards
+
+## 1) Naming & Structure
+
+- Use `it()` (not `test()`) and avoid descriptions starting with "should"
+- Components: `describe('<MainPage>')`
+- Hooks: `describe('useAuthenticatedUser()')`
+- Pure functions: `describe('calculateTotal()')`
+- Follow Arrange–Act–Assert in each test; keep each test focused on one behavior
+
+**Examples**
+
+```ts
+describe("<MyComponent>", () => {
+  it("renders success message", () => {
+    /* AAA */
+  })
+})
+
+describe("useMyHook()", () => {
+  it("returns expected state", () => {
+    /* AAA */
+  })
+})
+```
+
+## 2) React Testing Library (RTL) Essentials
+
+- Prefer `screen` over destructuring from `render`
+- Prefer accessible queries (`getByRole`, `getByLabelText`, `getByText`) over `data-testid`
+- Prefer `userEvent` to `fireEvent` for realistic interactions (typing, clicks, tabbing)
+- Prefer `findBy*` for async UI instead of wrapping assertions in `waitFor`
+
+```ts
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+render(<Form />);
+await userEvent.type(screen.getByLabelText('Email'), 'user@example.com');
+await userEvent.click(screen.getByRole('button', { name: /submit/i }));
+await screen.findByText(/success/i);
+```
+
+## 3) Asynchrony, `act`, and Timers
+
+- **Default**: Use `findBy*` (auto-retrying) and avoid manual polling
+- If you **must** coordinate async work, prefer a single assertion inside `waitFor`
+- Use `await act(async () => {})` to flush React updates driven by **promises/microtasks**
+- For timer-driven effects, use **modern fake timers** and flush **timers first**, then microtasks:
+
+```ts
+// Setup (usually in beforeEach)
+jest.useFakeTimers({ legacyFakeTimers: false })
+
+// When driving time-dependent effects:
+act(() => {
+  jest.runOnlyPendingTimers() // or jest.advanceTimersByTime(ms)
+})
+await act(async () => {}) // let microtasks & React updates settle
+```
+
+- **Do not** use the "flush promises" hack (`await Promise.resolve()`), prefer the empty async `act` above
+- Prefer `runOnlyPendingTimers` or `advanceTimersByTime` over `runAllTimers` to avoid overshooting unrelated timers
+
+## 4) `waitFor` vs. `findBy*`
+
+- Prefer `findBy*` to express "wait until it's on the screen"
+- When you must use `waitFor`, **keep it to one assertion** for debuggability
+
+```ts
+// ❌ Avoid
+await waitFor(() => {
+  expect(a()).toBeInTheDocument()
+  expect(b()).toBeInTheDocument()
+})
+
+// ✅ Prefer
+await screen.findByText("Loaded")
+```
+
+## 5) Mocks, Spies & Module Stubs
+
+- Mock external modules with `jest.mock(...)` at the top; assign typed mock variables
+- Prefer direct function returns for simple mocks
+- Use `jest.spyOn(obj, 'method')` and **restore** in `afterEach` (or inline with `mockRestore()`)
+- Avoid global `jest.clearAllMocks()` mid-test; instead **target** the mocks you care about with `.mockClear()`
+
+```ts
+import { logError } from "@/utils/log-error"
+const mockLogError = logError as jest.Mock
+jest.mock("@/utils/log-error", () => ({
+  logError: jest.fn(),
+  logInfo: jest.fn()
+}))
+
+jest.mock("@/utils/myUtil", () => jest.fn(() => 42))
+
+const spy = jest.spyOn(console, "error").mockImplementation(() => {})
+// ...assertions...
+spy.mockRestore()
+```
+
+## 6) Hooks Testing Patterns (`@testing-library/react` / `renderHook`)
+
+- Use `renderHook(() => useMyHook(...))`; use `rerender(newProps)` to simulate prop changes
+- Prefer a single `renderHook` instance + `rerender` instead of calling `renderHook` again
+- When the hook schedules timers, follow the **timers then microtasks** sequence described above
+- For race-condition tests, assert the **sequence**: start async, change inputs via `rerender`, then resolve async
+
+```ts
+const { rerender } = renderHook(
+  (props: { value: string }) => useMyHook(props.value),
+  { initialProps: { value: "a" } }
+)
+
+act(() => {
+  jest.runOnlyPendingTimers()
+})
+rerender({ value: "b" })
+await act(async () => {}) // settle microtasks
+```
+
+## 7) Network, Dates, Randomness
+
+- Use **MSW** for network mocking in integration-ish tests; avoid hand-rolled fetch mocks
+- Freeze time deterministically where needed:
+
+```ts
+jest.useFakeTimers({ legacyFakeTimers: false })
+jest.setSystemTime(new Date("2024-01-01T00:00:00Z"))
+```
+
+Remember to `jest.useRealTimers()` in `afterEach`.
+
+- Stub `Math.random` (and restore) for deterministic behavior
+
+## 8) Console Noise & Error Boundaries
+
+- Suppress expected error logs to keep output clean, but **assert** they occurred when relevant
+- When testing error boundaries, assert the **UI** and optionally that the error path logged as expected
+
+```ts
+const errSpy = jest.spyOn(console, "error").mockImplementation(() => {})
+// ... produce error ...
+expect(screen.getByText(/something went wrong/i)).toBeInTheDocument()
+errSpy.mockRestore()
+```
+
+## 9) Accessibility & Behavior over Implementation
+
+- Prefer role-based queries with accessible names:
+
+```ts
+screen.getByRole("button", { name: /save/i })
+```
+
+- Don't assert internal implementation details (state shape, private methods). Test **observable behavior**
+- Avoid snapshot testing for complex interactive UIs; prefer explicit assertions of visible behavior
+
+## 10) Organization & Performance
+
+- Keep `describe` blocks shallow; group related behavior, not implementation layers
+- Use shared setup in `beforeEach` **only** when it reduces duplication and stays readable
+- Don't duplicate environment setup that's already in `src/setup-tests.ts` (e.g., observers, matchMedia, MSW)
+
+## 11) TypeScript & Matchers
+
+- Type your mocks (`as jest.Mock`, `as jest.MockedFunction<typeof fn>`)
+- Use `@testing-library/jest-dom` matchers (`toBeInTheDocument`, `toHaveAccessibleName`, etc.)
+- Avoid `any` in tests; prefer explicit types for reliability
+
+## 12) File Placement & Naming
+
+- Co-locate tests with the code under test or in `__tests__` next to it
+- Use `.test.ts(x)` suffix consistently
+- Keep test names behavior-focused: "renders X", "calls Y on click", "debounces input", etc.
+
+## 13) Cleanup & Unmounts
+
+- RTL auto-cleans between tests; still explicitly unmount when asserting cleanup (e.g., timers cleared)
+- When asserting cleanup, ensure a timer/subscription was actually scheduled before `unmount()`
+
+```ts
+const clearTimeoutSpy = jest.spyOn(global, "clearTimeout")
+const { unmount } = renderHook(() => useSomethingWithTimeout())
+act(() => {
+  jest.runOnlyPendingTimers()
+})
+unmount()
+expect(clearTimeoutSpy).toHaveBeenCalled()
+clearTimeoutSpy.mockRestore()
+```
+
+## 14) Common Patterns
+
+### Async UI with findBy\*
+
+```ts
+render(<ChatPage />);
+expect(await screen.findByText(/messages/i)).toBeInTheDocument();
+```
+
+### Timers + Microtasks sequence
+
+```ts
+jest.useFakeTimers({ legacyFakeTimers: false })
+act(() => {
+  jest.runOnlyPendingTimers()
+})
+await act(async () => {})
+```
+
+### Targeted mock clearing
+
+```ts
+myModule.myFn.mockClear() // ✅ targeted
+// jest.clearAllMocks();             // ❌ avoid mid-test unless re-initialized
+```
+
+### Hooks rerender
+
+```ts
+const { rerender } = renderHook((p: { id: string }) => useThing(p.id), {
+  initialProps: { id: "A" }
+})
+act(() => {
+  jest.runOnlyPendingTimers()
+})
+rerender({ id: "B" })
+await act(async () => {})
+```
+
+## Examples
+
+### Component Test
+
+```ts
+describe('<MyComponent>', () => {
+  it('renders title', () => {
+    render(<MyComponent />);
+    expect(screen.getByText('Title')).toBeInTheDocument();
+  });
+});
+```
+
+### Hook Mock
+
+```ts
+import useFeatureFlag from "@/hooks/use-feature-flag"
+const mockUseFeatureFlag = useFeatureFlag as jest.Mock
+jest.mock("@/hooks/use-feature-flag", () => jest.fn(() => ({ value: true })))
+```
+
+### Timer Handling
+
+```ts
+act(() => {
+  jest.runOnlyPendingTimers()
+})
+await act(async () => {})
+```
+
+### Hook Rerender
+
+```ts
+const { rerender } = renderHook(
+  (p: { value: string }) => useDebouncedValue(p.value),
+  { initialProps: { value: "a" } }
+)
+act(() => {
+  jest.advanceTimersByTime(300)
+})
+await act(async () => {})
+rerender({ value: "b" })
+```

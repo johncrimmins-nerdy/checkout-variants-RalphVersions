@@ -1,0 +1,23 @@
+name: Deploy to Netlify (production) on Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: netlify-production-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GEMFURY_TOKEN: ${{ secrets.GEMFURY_TOKEN }}
+  VT_GITHUB_TOKEN: ${{ secrets.VT_GITHUB_TOKEN }}
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/_deploy-production.yml
+    secrets: inherit

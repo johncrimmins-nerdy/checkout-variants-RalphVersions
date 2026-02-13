@@ -1,0 +1,130 @@
+---
+description: File organization and naming
+alwaysApply: false
+---
+
+# File Organization & Naming
+
+## File Naming Conventions
+
+### General Rules
+
+- Always follow NextJS and Netlify best practices
+- Use lowercase and kebab-case for all file and folder names
+- Use named exports
+- Files should match their export name
+- All exports should happen at the end of the file.
+- Type exports should be separated from regular exports.
+
+### File Type Patterns
+
+#### Components (`src/components/`)
+
+- **Pattern**: `component-name.tsx` → exports `ComponentName`
+- **Example**: `concept-header.tsx` → exports `ConceptHeader`
+
+#### Utilities (`src/utils/`)
+
+- **Pattern**: `function-name.ts` → exports `functionName`
+- **Example**: `difficulty-utils.ts` → exports `getDifficultyColor`
+
+#### Hooks (`src/hooks/`)
+
+- **Pattern**: `use-hook-name.ts` → exports `useHookName`
+- **Example**: `use-concept-data.ts` → exports `useConceptData`
+
+#### Pages (`src/app/`) - Next.js App Router
+
+- **Pattern**: `page.tsx` → default export for route segments
+- **Pattern**: `layout.tsx` → default export for layouts
+- **Example**: `src/app/subjects/page.tsx` → default exports page component
+
+#### Types (`src/types/`)
+
+- **Pattern**: `type-name.ts` → exports `TypeName`
+- **Example**: `content-page.ts` → exports `ContentPage`
+
+## Type Organization Guidelines
+
+### Type Placement Strategy
+
+**Domain-scoped types** (Preferred approach):
+
+- Keep types close to their domain logic in dedicated `types.ts` files
+- Examples: `src/lib/api/types.ts`, `src/lib/flashcardService/types.ts`
+- Use when types are specific to a particular domain/service
+
+**Global cross-domain types** (`src/types/`):
+
+- Types shared across multiple domains
+- Global application interfaces
+- External library type definitions
+- Examples: `src/types/content.ts`, `src/types/flashcards.ts`
+
+**Game/Feature-specific types** (Component domains):
+
+- Keep in component folders: `src/components/pages/game-name/types/`
+- Use when types are specific to a feature/game
+
+**Component-local types**:
+
+- Keep in the same file when used only locally
+- Props interfaces for single-use components
+
+### Re-export Rules
+
+**❌ NEVER re-export in files with logic:**
+
+```typescript
+// BAD: File has logic AND re-exports
+// src/lib/api/index.ts
+import { ChatMessage } from './types'
+
+export class ApiService { ... } // Has logic
+export { ChatMessage } from './types' // ❌ Cannot re-export
+```
+
+**✅ ONLY re-export in pure index files:**
+
+```typescript
+// GOOD: Pure index file - only purpose is to export
+// src/components/ui/index.ts
+export { Button } from "./button";
+export { Input } from "./input";
+export type { ButtonProps } from "./button";
+```
+
+**✅ Import types directly from their source:**
+
+```typescript
+// GOOD: Import types from types file, logic from logic file
+import { apiService } from "@/lib/api";
+import type { ChatMessage } from "@/lib/api/types";
+```
+
+### Type File Organization
+
+- **Domain boundaries**: Keep types in domain folders (`src/lib/domain/types.ts`)
+- **Single responsibility**: Types files should only contain types
+- **Descriptive names**: Use clear, domain-specific naming
+- **Direct imports**: Always import types from their actual location
+- **Database types**: Use generated Supabase types from `supabase/database.types.ts`
+
+## Import Organization
+
+### Import Order (with blank lines between groups)
+
+1. **Type imports** (first group)
+2. **Internal imports** (components first, then utilities/hooks)
+3. **Sort alphabetically** within each group keeping multiple imports at the top
+
+### Example
+
+```typescript
+import type { ComponentProps } from "react";
+import type { User } from "@/types/user";
+
+import { useState, useEffect } from "react";
+import Button from "../components/button";
+import { formatDate } from "../utils/date-utils";
+```

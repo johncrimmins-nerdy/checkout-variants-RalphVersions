@@ -1,0 +1,214 @@
+---
+title: Analytics Tracking Standards
+alwaysApply: true
+---
+
+## Rule: Implement analytics tracking with Segment + Amplitude
+
+### Purpose
+
+Standardize page-view and interaction tracking across the app using Segment Analytics and Amplitude. Ensure events are consistent, non-blocking, and labeled using path-based conventions.
+
+### Imports and Provider
+
+- Page views: `ViewTrack` from `@/components/analytics/ViewTrack`
+- Interactions: `useAnalytics()` from `@/lib/analytics/hooks/use-analytics` (returns Segment analytics instance)
+- Provider: `AnalyticsProvider` already configured in `src/app/TelemetryProvider.tsx` (wraps entire app)
+
+### Page View Tracking
+
+- Wrap each route's content once with `ViewTrack` (works in both client and server components)
+- `ViewTrack` automatically tracks page views with `category: "student-experience-ui"` and `page_name: label`
+- Build labels from filesystem path segments using `buildLabel(root, ...segments)` and stable IDs (slugs, ids)
+
+Example:
+
+```tsx
+import ViewTrack from "@/components/analytics/ViewTrack"
+import { buildLabel } from "@/lib/analytics/labels"
+
+export default async function Page({
+  params
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params
+  return (
+    <ViewTrack label={buildLabel("subjects", slug, "ai-tutor")}>
+      {/* page content */}
+    </ViewTrack>
+  )
+}
+```
+
+### Label Conventions (path-based)
+
+- Use kebab-case; keep labels short and stable
+- Use `buildLabel("root", ...)` to normalize and join segments with `-`
+- Prefer stable identifiers (e.g., slugs, ids) over free text
+
+Common patterns:
+
+- Top-level indexes: `home-index`, `subjects-index`, `flashcards-index`, `worksheets-index`, `games-index`, `ai-tutor-index`, `diagnostics-index`, `solver-index`
+- Subjects
+  - Root: `subjects-${subject.slug}`
+  - Sections: `subjects-${subject.slug}-(help|practice|diagnostics|flashcards|content)`
+  - Catch-alls: `subjects-${subject.slug}-(help|practice|diagnostics)-${pathString}`
+  - Content slide: `subjects-${subject.slug}-content-${slideId}`
+  - Reports: `subjects-${slug}-(practice|diagnostics)-report-(index|${attemptId})`
+- Flashcards (deck routes): `flashcards-${deckId}`, `flashcards-${deckId}-edit`, `flashcards-${deckId}-study`
+- Worksheets: `worksheets-${sheetId}`
+- Games: `games-(speed-challenge|speed-challenge-play|number-cards|crossmath|adventure)`
+- Auth/Profile: `auth-index`, `auth-code-error`, `profile`, `progress`
+
+Note: For multi-segment paths, join with hyphens (e.g., `path.join("-")`). Avoid `String.prototype.replaceAll` for compatibility.
+
+### Interaction Tracking
+
+- **IMPORTANT:** Use `useAnalytics()` only in **client components** (add `"use client"` directive)
+- Call `analytics.track(action, { category, label?, value? })`
+- Always pass `action` and `category` - action should be descriptive (e.g., "Button Clicked", "Search Entered")
+- Pass `label` that describes what was interacted with, and `value` for additional context
+- **Fire-and-forget:** Always prefix calls with `void` to avoid blocking UI
+
+Example click:
+
+```tsx
+"use client"
+
+import useAnalytics from "@/lib/analytics/hooks/use-analytics"
+
+export default function NavButton() {
+  const analytics = useAnalytics()
+
+  return (
+    <button
+      onClick={() => {
+        void analytics.track("Button Clicked", {
+          category: "nav",
+          label: "Subjects"
+        })
+        // handle click
+      }}
+    >
+      Subjects
+    </button>
+  )
+}
+```
+
+### Helpers (recommended)
+
+- `buildLabel(root, ...segments)` – normalize and compose labels for consistent naming
+
+### Categories and Actions
+
+- **Categories in use:** `page`, `nav`, `navigation`, `flashcards`, `practice`, `quiz`, `worksheet`, `ai-tutor`, `ai-solver`, `cta`, `modal`, `footer`
+- **Common actions:** "Button Clicked", "Link Clicked", "Navigation Clicked", "Menu Toggled", "Search Entered", "Answer Selected", "Modal Closed"
+- Prefer existing actions from `@/lib/analytics/events.analyticsActions`; use descriptive names for custom actions
+
+### Do's and Don'ts
+
+- **Do** use exactly one `ViewTrack` per route/view
+- **Do** add `"use client"` directive to any component using `useAnalytics()`
+- **Do** prefix with `void analytics.track(...)` for fire-and-forget behavior
+- **Do** use path-based `buildLabel()` and stable identifiers
+- **Don't** use `useAnalytics()` in server components
+- **Don't** block UI/navigation awaiting telemetry
+- **Don't** duplicate page-view events
+- **Don't** use `console.log` for analytics
+
+### Review Checklist
+
+- [ ] Page includes a single `ViewTrack` with a path-based label
+- [ ] Client components with interactions have `"use client"` directive
+- [ ] Interaction handlers call `analytics.track(action, { category, label?, value? })`
+- [ ] All analytics.track() calls prefixed with `void`
+- [ ] Labels follow directory-based conventions via `buildLabel()`
+- [ ] Categories/actions match existing conventions
+
+---
+
+## alwaysApply: true
+
+## Rule: Add analytics tracking to new interactions and views
+
+When you add or modify user interactions or pages, instrument them with Segment Analytics using the project's existing helpers.
+
+### How to instrument interactions
+
+- **MUST** add `"use client"` directive to any component using `useAnalytics()`
+- Use the hook: `useAnalytics()` from `@/lib/analytics/hooks/use-analytics` (returns Segment analytics instance)
+- Call `analytics.track(action, { category, label?, value? })`
+- Always prefix with `void` to avoid blocking UI/navigation
+
+```tsx
+"use client"
+
+import useAnalytics from "@/lib/analytics/hooks/use-analytics"
+
+export default function ExampleButton({ label }: { label: string }) {
+  const analytics = useAnalytics()
+
+  return (
+    <button
+      onClick={() => {
+        void analytics.track("Button Clicked", {
+          category: "cta",
+          label: "Example Button"
+        })
+        // handle click
+      }}
+    >
+      {label}
+    </button>
+  )
+}
+```
+
+### How to instrument page views
+
+- Use component: `ViewTrack` from `@/components/analytics/ViewTrack`
+- Works in both server and client components
+- Only pass `label` prop (ViewTrack handles the rest)
+
+```tsx
+import ViewTrack from "@/components/analytics/ViewTrack"
+
+export default function SubjectsPage() {
+  return <ViewTrack label="subjects-index">{/* page content */}</ViewTrack>
+}
+```
+
+### Event naming guidance
+
+- **Actions:** Use descriptive names like "Button Clicked", "Search Entered", "Navigation Clicked"
+- **Categories:** Use existing categories: `nav`, `navigation`, `page`, `flashcards`, `practice`, `quiz`, `worksheet`, `ai-tutor`, `ai-solver`, `cta`
+- **Labels:** Use kebab-case; prefer stable identifiers (slugs, ids) over free text
+- Prefer existing actions from `@/lib/analytics/events.analyticsActions`
+- Keep `label` short and meaningful
+
+### Do's and Don'ts
+
+- **Do** add `"use client"` to any component using `useAnalytics()`
+- **Do** prefix with `void analytics.track(...)` for fire-and-forget
+- **Do** use path-based `buildLabel()` for consistent labels
+- **Don't** use `useAnalytics()` in server components (ViewTrack is safe everywhere)
+- **Don't** block UI/navigation awaiting telemetry
+- **Don't** duplicate page view events; use `ViewTrack` once per route
+- **Don't** use `console.log` for analytics
+
+### Environment and provider
+
+- The app is wrapped with `AnalyticsProvider` in `src/app/TelemetryProvider.tsx`
+- Segment Analytics browser client initialized with write key
+- Amplitude session replay and guides/surveys configured
+- No additional setup needed; just use `useAnalytics()` and `ViewTrack`
+
+### Checklist for new code
+
+- [ ] Add `"use client"` directive if using `useAnalytics()`
+- [ ] Call `void analytics.track(action, { category, label?, value? })` for interactions
+- [ ] Add `ViewTrack` with path-based label for new pages
+- [ ] Extend `analyticsActions` in `@/lib/analytics/events` if introducing shared action
+- [ ] Verify all calls are non-blocking (use `void` prefix)

@@ -1,0 +1,95 @@
+---
+alwaysApply: true
+---
+
+# Global Rules
+
+## Code Quality Principles
+
+### DRY (Don't Repeat Yourself)
+- Extract common logic into shared utilities and functions
+- Eliminate code duplication by creating reusable components and utilities
+- If you find yourself writing similar code twice, refactor it into a shared function
+- Example: Use shared utilities like `streaming-math-utils.ts` instead of inline duplicate logic
+
+### Testable Code
+- Write pure functions with clear inputs and outputs whenever possible
+- Avoid side effects in functions that don't explicitly need them
+- Make functions predictable - same inputs should always produce same outputs
+- Structure code to be easily mockable and testable
+- Use dependency injection for external dependencies
+
+### Readable Code
+- Use clear, descriptive function and variable names that explain their purpose
+- Add comprehensive JSDoc documentation for complex functions
+- Write self-documenting code that doesn't require extensive comments
+- Use meaningful variable names over generic ones (`userEmail` not `data` or `item`)
+- Structure code logically with clear separation of concerns
+
+### Maintainable Architecture
+- Keep logic centralized - one place to update specific functionality
+- Use consistent patterns across the codebase
+- Implement proper error handling and validation
+- Structure files and folders logically
+- Follow established project conventions
+
+### Single Responsibility Principle
+- Each function should handle one specific task
+- Each module should have one reason to change
+- Keep functions small and focused on a single concern
+- Separate business logic from UI logic
+- Make functions easier to understand, test, and modify independently
+
+### Simplicity Over Complexity
+- Avoid over-engineering solutions
+- Choose the simplest solution that meets the requirements
+- Don't add features or complexity that isn't immediately needed
+- Keep solutions focused and minimal
+- Prefer composition over inheritance
+
+## Testing
+
+Do not run `npm run build` or `npm run dev` when finishing work.
+Do not start up web servers to test work.
+DO run Jest unit tests, linting and typescript compilation to ensure that the code is good.
+
+## Supabase
+
+Always use .throwOnError() unless we explicitly don't care about errors.
+Prefer .select() after an .insert() or .update() operation in order to mutate swr cache.
+
+## User Interface
+
+For icons, always use LucideIcons and never emojis.
+
+## Code Implementation Guidelines
+
+### Function Design
+- Keep functions under 20 lines when possible
+- Use early returns to reduce nesting
+- Validate inputs at the beginning of functions
+- Use TypeScript types and interfaces consistently
+
+### Error Handling
+- Handle errors gracefully and provide meaningful error messages
+- Use try-catch blocks appropriately
+- Don't silently ignore errors unless explicitly intended
+
+### Performance
+- Avoid unnecessary re-renders in React components
+- Use useMemo and useCallback appropriately for expensive operations
+- Optimize database queries and API calls
+- Consider lazy loading for large components or data sets
+
+### Security
+- Validate all user inputs
+- Use proper authentication and authorization
+- Sanitize data before database operations
+- Follow secure coding practices
+
+## Logging Policy
+
+- **Development**: `console.log` allowed for debugging but prefer tracking functions
+- **Production**: `console.log` automatically stripped from builds
+- **Always use**: Proper tracking functions from `@/lib/attemptTracking` for user analytics
+- **Error reporting**: Use `console.error` and proper error boundaries for error handling

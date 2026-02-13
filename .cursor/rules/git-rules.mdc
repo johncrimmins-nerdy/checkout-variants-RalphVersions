@@ -1,0 +1,55 @@
+---
+description: General Git rules for Cursor actions (branching, commits, PRs, planning)
+alwaysApply: false
+---
+
+## Git rules: branches, commits, PRs, and planning
+
+Use these rules whenever executing git commands and when planning implementations. Apply intelligently and non-interactively.
+
+### Base branch
+- Create feature branches from `origin/main`
+
+### Branch naming (Jira ticket keys)
+- Pattern: `<TICKET-1234>-concise-description` where `<TICKET-1234>` matches `/^[A-Z]+-\d+$/`
+- Kebab-case description; do not alter the ticket number
+- Examples: `ACT-2595-scheduling`, `ABC-1234-fix-login-redirect`
+- On create/rename: enforce `/^[A-Z]+-\d+-[a-z0-9-]+$/`
+- Slack automation: Only ACT tickets (`ACT-####-...`) trigger `#activation-pr` notifications via `varsitytutors/llt-devtools`
+- If ticket is unknown: request it or use a temporary WIP branch and rename once known
+
+### Pull request title
+- Must contain the Jira ticket key; brackets are optional
+- Acceptable examples: `[ACT-1234] Add scheduling flow`, `ACT-1234 Add scheduling flow`
+- Detection: title must contain `/(?:\[[A-Z]+-\d+\]|[A-Z]+-\d+)/`
+- Keep titles concise and descriptive
+
+### Commits must be atomic, green, and Conventional Commits
+- Follow Conventional Commits: `type: concise description`
+- Make each step committable on its own; no broken logic across commits
+- Run linters and unit tests before each commit; fix errors before committing
+  - Preferred checks: `npm run lint` and `npm test`
+- Keep commits small and focused; avoid mixing unrelated changes
+
+### Planning guidance (applies in plan mode)
+- Break work into small, independent steps; each ends with a green commit
+- Order steps so that each change compiles and tests pass
+- After each step: run lint/tests, then commit
+- Do not accumulate large, uncommitted changes; commit incrementally
+
+### PR creation behavior
+- Ensure branch name and PR title include a valid ticket key (brackets optional for titles)
+- Use non-interactive commands to open PRs; include a brief summary and test plan
+- Keep PRs focused and sized for quick review
+
+### Safety and conventions
+- Never modify git config
+- Prefer non-interactive commands; avoid `rebase -i` or `add -i`
+- Do not push unless explicitly requested
+
+### Quick checklist
+- [ ] Branch from `origin/main`
+- [ ] Branch name matches `<TICKET-####>-...` (e.g., `ACT-2595-scheduling`)
+- [ ] Lint and unit tests pass locally
+- [ ] Commit follows Conventional Commits and is atomic/green
+- [ ] PR title contains the ticket key (e.g., `ACT-####`), brackets optional

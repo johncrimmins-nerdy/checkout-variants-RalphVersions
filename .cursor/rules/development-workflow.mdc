@@ -1,0 +1,74 @@
+---
+description: Running script commands
+alwaysApply: false
+---
+
+# Development Workflow & Tooling
+
+## Package Management
+
+### Node Version Management
+
+**Always ensure correct Node version before running npm commands:**
+
+1. **Switch to correct version**: Run `nvm use` to match project's Node version
+2. **Verify version**: The project uses Node.js version specified in `.nvmrc`
+3. **Then proceed**: After version is set, run npm commands
+
+```bash
+# ✅ Good: Use correct Node version first
+nvm use
+npm run test
+
+# ❌ Bad: Running npm without checking Node version
+npm run test  # May fail or behave unexpectedly with wrong Node version
+```
+
+### Script Verification
+
+**Always check package.json for available scripts before running commands:**
+
+1. **Check available scripts**: Run `npm run` to list all scripts
+2. **Verify script exists**: Ensure script exists before running
+3. **Use npm consistently**: Always use npm as the package manager
+4. **Follow project conventions**: Use established script names
+
+### Example Workflow
+
+```bash
+# ✅ Good: Complete workflow
+nvm use
+npm run
+
+# ✅ Good: Run verified script
+npm run test
+
+# ❌ Bad: Running unknown script
+npm run test:ci  # May not exist
+```
+
+## Git & Version Control
+
+### Branch Management
+
+- Use descriptive branch names
+- Keep branches focused on single features/fixes
+- Delete merged branches promptly
+
+## Build & Deployment
+
+### Build Process
+
+- **Lint check**: Run `npm run lint` to check code quality
+- **TypeScript compilation**: Ensure no TypeScript errors
+- **Build verification**: Run `npm run build` to ensure production build succeeds
+- **Testing**: Run `npm run test:e2e` for Playwright tests when appropriate
+
+### Available Scripts
+
+Key package.json scripts for this project:
+
+- `npm run dev` - Development server with secrets
+- `npm run build` - Production build
+- `npm run lint` - ESLint with automatic fixes
+- `npm run test:e2e` - Playwright end-to-end tests

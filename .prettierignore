@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+build
+dist
+coverage
+originals
+.netlify
+*.md
+package-lock.json
+.env*
+

@@ -1,0 +1,194 @@
+---
+description: Documentation rules
+alwaysApply: false
+---
+
+# Documentation Cleanup Rules
+
+## Principle: Keep Only Critical Information
+
+Documentation should contain only essential information that helps developers understand the app's architecture, unique features, and critical implementation details. Remove obvious, repetitive, or verbose content.
+
+## What to Remove
+
+### Obvious Installation Steps
+
+- Standard `git clone` explanations
+- Basic `npm install` instructions
+- Common development server setup
+- Generic prerequisite lists (Node.js, npm, etc.)
+
+### Verbose Feature Lists
+
+- Marketing-style bullet points with excessive detail
+- Repetitive feature descriptions
+- Over-explained benefits that are self-evident
+- Multiple sections covering the same information
+
+### Step-by-Step Tutorials
+
+- Basic command explanations that are self-documenting
+- Obvious workflow descriptions
+- Generic troubleshooting sections
+- Detailed examples for simple operations
+
+### Redundant Sections
+
+- Multiple sections explaining the same concept
+- Repetitive configuration examples
+- Duplicate information across different docs
+- Over-detailed table comparisons for simple concepts
+
+### Marketing Language
+
+- Adjectives ("amazing", "powerful", "advanced", "modern", "beautiful", etc.)
+- Excessive emoji usage for simple sections
+- Promotional language about features
+- Verbose explanations of obvious benefits
+
+## What to Keep
+
+### Critical Technical Information
+
+- Unique architecture decisions (SSR optimizations, MathJax integration)
+- Non-obvious configuration requirements
+- Complex setup procedures that differ from standards
+- Performance considerations and thresholds
+
+### Essential API Information
+
+- Environment variables with specific purposes
+- Critical configuration options
+- Non-standard build processes
+- Integration-specific requirements
+
+### Key Implementation Details
+
+- Custom algorithms or business logic
+- Third-party integration notes
+- Performance monitoring thresholds
+- Security considerations
+
+### Troubleshooting (Selective)
+
+- Common issues specific to this project
+- Non-obvious error resolution
+- Critical debugging information
+- Project-specific gotchas
+
+## Documentation Structure Guidelines
+
+### README Files
+
+- Lead with brief, factual description
+- Focus on unique features, not standard tech stack benefits
+- Include only essential setup commands
+- Highlight critical configuration requirements
+- End with minimal technical details
+
+### Technical Documentation
+
+- Start with overview of what makes this implementation unique
+- Include only critical configuration options
+- Focus on project-specific requirements
+- Remove generic explanations of well-known tools
+
+### API Documentation
+
+- Include only non-standard usage patterns
+- Document critical environment variables
+- Explain complex integrations briefly
+- Remove obvious parameter explanations
+
+## Writing Style
+
+### Be Concise
+
+- Use direct, factual language
+- Eliminate unnecessary words
+- Combine related concepts
+- Remove redundant explanations
+
+### Focus on Value
+
+- Each section should answer "Why is this different/important?"
+- Remove content that doesn't help developers understand or implement
+- Prioritize actionable information over descriptive content
+- Include only critical examples
+
+### Maintain Technical Accuracy
+
+- Keep all technical details accurate
+- Preserve critical code examples
+- Maintain essential configuration information
+- Don't remove important warnings or notes
+
+## Example Transformations
+
+### Before (Verbose)
+
+```markdown
+## 🚀 Features
+
+- **Modern Tech Stack**: React 19, TypeScript, Next.js 15, Tailwind CSS
+- **Server-Side Rendering (SSR)**: Full SSR support with static pre-rendering
+- **Static Site Generation (SSG)**: Pre-rendered HTML for all routes
+- **Interactive Components**: Educational components with modern UX
+- **Beautiful Design**: Glassmorphism dark theme with gradient effects
+- **SEO Optimized**: Meta tags, Open Graph, structured data, XML sitemap (717+ pages)
+- **Mobile Responsive**: Fully responsive design that works on all devices
+```
+
+### After (Concise)
+
+```markdown
+## 🚀 Features
+
+- **Tech Stack**: React 19, TypeScript, Next.js 15, Tailwind CSS
+- **SSR/SSG**: Pre-rendered HTML for optimal SEO and performance
+- **MathJax Integration**: Advanced SSR-optimized mathematical expression rendering
+```
+
+### Before (Over-detailed)
+
+`````markdown
+### Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd hotmath
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+### After (Essential)
+
+````markdown
+### Installation & Setup
+
+```bash
+git clone <repository-url>
+cd hotmath
+npm install
+npm run dev  # → http://www.vt.local:3000
+```
+````
+`````
+
+## Implementation Notes
+
+- Apply these rules consistently across all documentation
+- Preserve unique technical details that differentiate this project
+- Remove standard explanations of common tools and processes
+- Focus on what makes this implementation special or different
+- Keep code examples that show non-obvious usage patterns
+- Maintain critical configuration and environment setup information
+
+```
+
+```

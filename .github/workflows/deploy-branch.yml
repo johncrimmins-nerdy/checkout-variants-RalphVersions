@@ -1,0 +1,90 @@
+name: Deploy Branch to Netlify (Staging)
+
+# ⚠️ BROKEN: This workflow does NOT work as intended.
+#
+# Goal: Deploy any branch to staging by overwriting the main branch deploy.
+# Staging proxy: vtstaging.com/checkout → main--checkout-wf.netlify.app/checkout
+#
+# Problem: Netlify does not allow CLI deploys to overwrite branch deploys.
+# We tried:
+#   - --alias=main: Creates a separate alias URL, doesn't overwrite the branch deploy
+#   - --context=branch:main: Only sets env vars context, doesn't overwrite the branch deploy
+#
+# The only workaround is to disable Netlify's automatic branch building and
+# deploy staging from GitHub Actions (similar to how we deploy production).
+#
+# For now, to test on staging you must merge your changes to the main branch.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GEMFURY_TOKEN: ${{ secrets.GEMFURY_TOKEN }}
+  VT_GITHUB_TOKEN: ${{ secrets.VT_GITHUB_TOKEN }}
+
+jobs:
+  deploy-to-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          cache-dependency-path: package-lock.json
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build and Deploy as main branch
+        id: deploy
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          echo "🚀 Building and deploying branch: $BRANCH as 'main' branch deploy"
+
+          # NOTE: This does NOT overwrite the main branch deploy (see header comments)
+          # It creates a separate deploy with main branch env vars but doesn't replace the branch deploy
+          npx --yes netlify-cli deploy \
+            --build \
+            --context=branch:main \
+            --site=${{ vars.NETLIFY_SITE_ID }} \
+            --json > deploy-output.json
+
+          cat deploy-output.json | jq .
+          OUTPUT=$(cat deploy-output.json)
+
+          # Extract deploy URL and ID
+          DEPLOY_URL=$(echo "$OUTPUT" | jq -r '.deploy_url // empty')
+          DEPLOY_ID=$(echo "$OUTPUT" | jq -r '.deploy_id // empty')
+          SITE_URL=$(echo "$OUTPUT" | jq -r '.url // empty')
+
+          echo "deploy_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+          echo "deploy_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
+          echo "site_url=$SITE_URL" >> $GITHUB_OUTPUT
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Deployment Summary
+        run: |
+          SITE_NAME="checkout-wf"
+          BRANCH="${{ github.ref_name }}"
+
+          echo "## 🚀 Netlify Deploy Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Source Branch** | \`$BRANCH\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Deployed As** | \`main\` branch |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Deploy ID** | \`${{ steps.deploy.outputs.deploy_id }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Access URLs" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Main Branch URL:** https://main--${SITE_NAME}.netlify.app/checkout" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Direct Deploy URL:** ${{ steps.deploy.outputs.deploy_url }}" >> $GITHUB_STEP_SUMMARY

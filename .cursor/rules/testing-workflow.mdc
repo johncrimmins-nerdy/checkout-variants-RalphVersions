@@ -1,0 +1,142 @@
+---
+description: Mandatory workflow and protocol for writing unit tests
+globs: "*.test.ts,*.test.tsx,*.spec.ts,*.spec.tsx"
+alwaysApply: false
+---
+
+# Unit Testing Workflow
+
+## Test Planning
+
+When starting a new test file, you MUST follow this sequence:
+
+1. **Analyze** the component or function we are testing to understand its purpose
+2. **Verify** all logic paths and edge cases, aiming for 100% coverage
+3. **Use describe blocks** to group functionality together
+4. **Map out all tests** using `it.todo`
+5. **Avoid using the word "should"**, but instead be explicit (e.g., "renders error message" not "should render error message")
+6. **Wait for confirmation** from the user before proceeding to fill in the tests
+
+## Test Writing Protocol (MANDATORY)
+
+When writing ANY tests, you MUST follow this exact sequence:
+
+### ✅ REQUIRED WORKFLOW
+
+1. **Write the tests** - Create comprehensive test coverage
+2. **Mock externals** - Import the external, mock it with `jest.mock` and then assign a mocked variable
+   ```ts
+   import useFunc from "@/hooks/useFunc"
+   const mockUseFunc = useFunc as jest.Mock
+   jest.mock("@/hooks/useFunc", () => jest.fn())
+   ```
+3. **Run the tests** - Execute `npm test -- --testPathPatterns=filename.test.ts`
+4. **Verify all tests pass** - Fix any failing tests before proceeding
+5. **Check for linting issues** - Run `npm run lint` and fix all remaining errors
+6. **Check for console errors and warnings** - The test output should be clean with no warnings or polluted logs
+7. **Only then mark task as complete**
+
+### ❌ NEVER DO
+
+- Writing tests without running them
+- Ignoring linting errors or warnings
+- Marking tests as "complete" with failing tests
+- Skipping verification steps
+- Using the `any` type (prefer strict typing or `unknown`)
+- Leaving `console.log` statements in tests
+- Using `test()` instead of `it()`
+- Starting test descriptions with "should"
+
+### 🎯 Quality Standards
+
+- **Aim for 100% test coverage** where practical
+- **Include edge cases**, error handling, and function reference stability
+- **Use mocking strategies** for external libraries and APIs
+- **Follow React Testing Library best practices** with `render`, `renderHook`, `act` and `screen`
+- **Use `user-event`** for event-driven testing (not `fireEvent`)
+- **Clean test output** - no console warnings, errors, or noise
+
+## Example Test Planning Session
+
+```ts
+// Step 1: Analyze the component
+// MyButton.tsx renders a button with loading state and onClick handler
+
+// Step 2-4: Map out tests with it.todo
+describe("<MyButton>", () => {
+  it.todo("renders button with label")
+  it.todo("calls onClick when clicked")
+  it.todo("shows loading spinner when loading is true")
+  it.todo("disables button when loading is true")
+  it.todo("applies custom className")
+})
+
+// Step 5: Wait for user confirmation before implementing
+```
+
+## Example Mock Setup
+
+```ts
+// External hook
+import { useAnalytics } from "@/lib/analytics/hooks"
+const mockUseAnalytics = useAnalytics as jest.Mock
+const mockTrackEvent = jest.fn()
+jest.mock("@/lib/analytics/hooks", () => ({ useAnalytics: jest.fn() }))
+
+beforeEach(() => {
+  mockUseAnalytics.mockReturnValue({ track: mockTrackEvent })
+})
+
+// External module
+import { fetchData } from "@/lib/api"
+const mockFetchData = fetchData as jest.Mock
+jest.mock("@/lib/api", () => ({ fetchData: jest.fn() }))
+
+// Console spy (for expected errors)
+const consoleErrorSpy = jest
+  .spyOn(console, "error")
+  .mockImplementation(() => {})
+afterEach(() => {
+  consoleErrorSpy.mockRestore()
+})
+```
+
+## Running Tests
+
+```bash
+# Run specific test file
+npm test -- --testPathPatterns=MyComponent.test.tsx
+
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Check linting
+npm run lint
+
+# Check TypeScript compilation
+npm run type-check
+```
+
+## Coverage Goals
+
+- **Statements**: 80%+ (aim for 100%)
+- **Branches**: 80%+ (cover all if/else paths)
+- **Functions**: 80%+ (test all exported functions)
+- **Lines**: 80%+ (execute all meaningful code paths)
+
+## Checklist Before Marking Complete
+
+- [ ] All tests written and implemented
+- [ ] All tests passing (`npm test`)
+- [ ] No linting errors (`npm run lint`)
+- [ ] No console warnings or errors in test output
+- [ ] Code coverage targets met
+- [ ] TypeScript compilation successful
+- [ ] Mocks properly set up and cleaned up
+- [ ] Edge cases and error scenarios covered
+- [ ] Test descriptions are clear and explicit
+- [ ] Used `it()` not `test()`
+- [ ] Avoided "should" in test descriptions

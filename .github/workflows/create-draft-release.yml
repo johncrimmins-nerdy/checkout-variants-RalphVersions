@@ -1,0 +1,19 @@
+name: Create Draft Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  GEMFURY_TOKEN: ${{ secrets.GEMFURY_TOKEN }}
+  VT_GITHUB_TOKEN: ${{ secrets.VT_GITHUB_TOKEN }}
+
+jobs:
+  create-draft:
+    uses: ./.github/workflows/_create-release.yml
+    secrets: inherit
+    with:
+      draft: true

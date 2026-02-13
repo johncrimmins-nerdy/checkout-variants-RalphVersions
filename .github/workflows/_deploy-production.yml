@@ -1,0 +1,50 @@
+name: Deploy to Netlify (production)
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  GEMFURY_TOKEN: ${{ secrets.GEMFURY_TOKEN }}
+  VT_GITHUB_TOKEN: ${{ secrets.VT_GITHUB_TOKEN }}
+
+jobs:
+  deploy:
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          cache-dependency-path: package-lock.json
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        env:
+          GEMFURY_TOKEN: ${{ secrets.GEMFURY_TOKEN }}
+          VT_GITHUB_TOKEN: ${{ secrets.VT_GITHUB_TOKEN }}
+        run: npm i
+
+      - name: Netlify deploy (production)
+        run: npx --yes netlify-cli deploy --context=production --prod --site=${{ vars.NETLIFY_SITE_ID }}
+        env:
+          LAUNCHDARKLY_SERVER_TOKEN: ${{ secrets.LAUNCHDARKLY_SERVER_TOKEN }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          # Enable source maps generation for New Relic
+          UPLOAD_SOURCEMAPS: 'true'
+
+      - name: Upload source maps to New Relic
+        if: success()
+        run: npm run upload-sourcemaps
+        env:
+          NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
+          NEXT_PUBLIC_NEWRELIC_AGENT_ID: ${{ vars.NEXT_PUBLIC_NEWRELIC_AGENT_ID_PROD }}
+          NEXT_PUBLIC_HOST: 'https://www.varsitytutors.com'
+          NEXT_PUBLIC_BASE_PATH: '/checkout'
+          RELEASE_VERSION: ${{ github.sha }}

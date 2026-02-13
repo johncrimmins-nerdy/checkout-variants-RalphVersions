@@ -1,0 +1,60 @@
+---
+alwaysApply: true
+---
+
+# Production Deployment Standards
+
+## Netlify-Specific Considerations
+
+### Function Optimization
+
+- **Cold Start Performance**: Minimize bundle size for Netlify Functions
+- **Environment Variables**: Use Netlify environment variables for sensitive data
+- **Edge Functions**: Consider edge functions for performance-critical operations
+
+### Build Process
+
+- **Static Generation**: Maximize static generation for educational content
+- **Incremental Regeneration**: Use ISR for frequently updated content
+- **Bundle Analysis**: Monitor bundle size for optimal performance
+- **Prebuild Scripts**: Use prebuild steps for manifest and redirect generation
+
+### Educational Platform Requirements
+
+- **Content Delivery**: Optimize for educational content delivery at scale
+- **Performance Monitoring**: Use New Relic for production monitoring
+- **Progressive Web App**: Ensure PWA functionality works correctly
+- **Accessibility Compliance**: Meet WCAG guidelines for educational content
+
+### Security Considerations
+
+- **API Key Management**: Secure OpenAI and Supabase keys
+- **Content Moderation**: Implement content moderation for user-generated content
+- **Rate Limiting**: Implement appropriate rate limiting for AI features
+
+## Logging and Debug Standards
+
+### Console Usage Policy
+
+- **Development**: `console.log` allowed for debugging (will show ESLint warnings)
+- **Production**: `console.log`, `console.warn` and `console.error` statements are automatically stripped during build
+
+### Preferred Tracking Methods
+
+Instead of console logging, use the established tracking system:
+
+```typescript
+// ❌ Avoid: Console logging for tracking
+console.log('User completed diagnostic test')
+
+// ✅ Preferred: Use proper tracking
+import { trackSubjectDiagnosticAttempt } from '@/lib/attemptTracking'
+await trackSubjectDiagnosticAttempt(attemptData)
+```
+
+### Available Tracking Functions
+
+- `trackSubjectDiagnosticAttempt()` - Track diagnostic test attempts
+- `trackSubjectExampleAttempt()` - Track example question attempts
+- `trackSubjectPracticeAttempt()` - Track practice test attempts
+- `trackFlashcardStudySession()` - Track flashcard study sessions

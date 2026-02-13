@@ -1,0 +1,15 @@
+name: Deploy to Netlify (staging)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Staging deployment notice
+        run: |
+          echo "Staging deployment is handled automatically by Netlify"
+          echo "See: https://app.netlify.com/projects/vt-practice-hub/deploys to get the latest deployment status"

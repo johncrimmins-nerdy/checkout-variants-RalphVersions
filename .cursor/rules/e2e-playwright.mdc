@@ -1,0 +1,100 @@
+---
+globs: *.spec.*
+alwaysApply: false
+---
+
+# E2E / Playwright Test Rules
+
+These Cursor IDE rules codify Playwright best practices for our e2e tests. Follow these to reduce flakiness, improve readability, and align with Playwright's guidance.
+
+Refs: https://playwright.dev/docs/actionability, https://playwright.dev/docs/best-practices
+
+## Locators
+
+- Prefer role-, text-, and test-id-based locators via `getByRole`, `getByText`, `getByTestId`.
+- Avoid brittle CSS selectors tied to layout or class names.
+- Create semantic test ids for complex targets and use `page.getByTestId('key')`.
+- Chain locators to scope interactions (container → child) instead of global queries.
+
+## Auto-waiting & Actionability
+
+- Rely on Playwright auto-waiting; do not sprinkle manual `waitForTimeout`.
+- Interact with locators, not `page.$()` handles. Use `await locator.click()` etc.
+- Do not use `force: true` unless there is a clear, documented reason.
+- Prefer built-in scrolling via actionability (`scrollIntoViewIfNeeded`) rather than manual scrolling.
+
+## Assertions
+
+- Use web-first, auto-retrying assertions: `await expect(locator).toBeVisible()`, `toHaveText`, `toHaveURL`, etc.
+- Use `expect.soft` when checking multiple independent conditions to keep the test progressing.
+- Assert user-visible outcomes, not implementation details (classes, private attributes, internal state).
+
+## Test Philosophy
+
+- Test user-visible behavior and flows, not internal functions or CSS classes.
+- Keep tests isolated: do not depend on state from previous tests in the file.
+- Avoid testing third-party functionality; mock network or isolate integrations as needed.
+
+## Structure & Readability
+
+- Arrange-Act-Assert structure within each `it()` block.
+- Name tests imperatively (e.g., `renders navbar`, `navigates to subject detail`).
+- Keep tests focused; prefer smaller tests over monolithic flows. Use helpers for repeated steps.
+
+## Flakiness Reduction
+
+- Never `waitForTimeout` for UI readiness; assert on visible/enabled state instead.
+- Avoid racing animations/transitions; rely on actionability checks (visible, stable, receives events, enabled, editable).
+- Prefer `page.waitForURL` or `expect(page).toHaveURL()` after navigations.
+
+## Parallelism & Speed
+
+- Tests run in parallel by default across files. Keep tests isolated and deterministic.
+- If tests cannot handle race conditions, mark them with `test.describe.configure({ mode: "serial" })`. However, prefer splitting tests into separate files instead of using serial mode.
+- Shard on CI for large suites. Keep tests deterministic to support sharding.
+
+## Accessibility & Roles
+
+- Prefer role-based locators with accessible names: `getByRole('button', { name: /submit/i })`.
+- Ensure critical elements have roles/names to make tests resilient and improve a11y.
+
+## Screenshots & Traces
+
+- Use screenshots sparingly; prefer assertions. Keep traces for debugging failures in CI.
+
+## Anti-patterns (Do Not)
+
+- Do not use arbitrary sleeps (`waitForTimeout`).
+- Do not overuse `force: true` on actions.
+- Do not hardcode CSS class chains or layout selectors.
+- Do not assert transient states that can race with animations unless stabilized with assertions.
+
+## Examples
+
+```ts
+import { expect, test } from "@playwright/test"
+
+test("submits login form", async ({ page }) => {
+  // Arrange
+  await page.goto("/auth")
+
+  // Act
+  await page.getByLabel("Email").fill("user@example.com")
+  await page.getByLabel("Password").fill("secret")
+  await page.getByRole("button", { name: "Sign in" }).click()
+
+  // Assert
+  await expect(page).toHaveURL(/dashboard/)
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible()
+})
+```
+
+```ts
+import { expect, test } from "@playwright/test"
+
+test("navigates via nav link", async ({ page }) => {
+  await page.goto("/")
+  await page.getByRole("link", { name: "Subjects" }).click()
+  await expect(page).toHaveURL(/subjects/)
+})
+```

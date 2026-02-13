@@ -1,0 +1,236 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Fonts from Webflow */
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'General Sans';
+  src: url('/fonts/GeneralSans-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphie';
+  src: url('/fonts/Graphie-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphie';
+  src: url('/fonts/graphie-semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphie';
+  src: url('/fonts/graphie-bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Base colors */
+  --color-white: #fff;
+  --color-black: #000;
+
+  /* Gray scale */
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+
+  /* Brand colors */
+  --color-brand-error: #c24b33;
+  --color-brand-primary: #d14424;
+  --color-brand-secondary: #226063;
+  --color-brand-selection: #343272;
+  --color-brand-surface: #effcfd;
+  --color-brand-text: #1d192c;
+
+  /* Accent colors */
+  --color-accent-cyan: #00bcd4;
+  --color-accent-cyan-hover: #00acc1;
+  --color-accent-primary: #17e2ea;
+  --color-accent-purple: #9896ed;
+
+  /* Checkout */
+  --color-checkout-bg: #faf9fe;
+
+  /* Luminex (dark theme) */
+  --color-luminex-bg: #202344;
+  --color-luminex-border: #6c6e87;
+  --color-luminex-border-30: rgba(108, 110, 135, 0.3);
+  --color-luminex-card: #3f446c;
+  --color-luminex-card-50: rgba(63, 68, 108, 0.5);
+  --color-luminex-input: #4a5078;
+
+  /* Surface colors */
+  --color-surface-dark: rgba(15, 23, 42, 0.8);
+  --color-surface-light: rgba(255, 255, 255, 0.8);
+
+  /* Shadow colors */
+  --color-shadow-focus-brand: rgba(34, 96, 99, 0.2);
+  --color-shadow-focus-error: rgba(255, 59, 48, 0.2);
+  --color-shadow-glow-blue: rgba(111, 195, 255, 0.5);
+  --color-shadow-glow-purple: rgba(155, 114, 255, 0.4);
+}
+
+body {
+  color: var(--color-brand-text);
+  background: white;
+  font-family: var(--font-poppins), 'Poppins', system-ui, sans-serif;
+}
+
+/* Floating Label Pattern from Webflow */
+.dynamic-input-label-wrapper {
+  position: relative;
+}
+
+.dynamic-input-label-wrapper input,
+.dynamic-input-label-wrapper textarea {
+  border-color: var(--color-gray-300);
+  transition: 0.1s cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+.dynamic-input-label-wrapper label {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: rgba(125, 125, 125, 0.5);
+  font-size: 0.85rem;
+  font-weight: 500;
+  pointer-events: none;
+  padding: 0 5px;
+  background-color: transparent;
+  background-image: linear-gradient(
+    transparent 30%,
+    var(--color-checkout-bg) 45% 55%,
+    transparent 55%,
+    transparent
+  );
+  transition: 0.2s cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+/* Float label to top when focused or has content */
+.dynamic-input-label-wrapper input:not(:placeholder-shown) ~ label,
+.dynamic-input-label-wrapper input:-webkit-autofill ~ label,
+.dynamic-input-label-wrapper input:focus ~ label,
+.dynamic-input-label-wrapper textarea:not(:placeholder-shown) ~ label,
+.dynamic-input-label-wrapper textarea:-webkit-autofill ~ label,
+.dynamic-input-label-wrapper textarea:focus ~ label,
+.dynamic-input-label-wrapper.is-focused label,
+.dynamic-input-label-wrapper.has-content label {
+  top: 0px;
+  left: 10px;
+  font-size: 0.75rem;
+  color: #000 !important;
+}
+
+.dynamic-input-label-wrapper input:focus,
+.dynamic-input-label-wrapper textarea:focus {
+  border-color: var(--color-gray-400) !important;
+  outline: none;
+}
+
+/* Hosted field wrapper specific styles */
+.dynamic-input-label-wrapper.hosted-field-wrapper {
+  position: relative;
+}
+
+/* Floating animation for hosted field labels - triggered by JS */
+.dynamic-input-label-wrapper.hosted-field-wrapper.is-focused label,
+.dynamic-input-label-wrapper.hosted-field-wrapper.has-content label {
+  top: 0px !important;
+  left: 10px !important;
+  font-size: 0.75rem !important;
+  color: #000 !important;
+}
+
+/* Dark/Luminex theme variants for floating labels */
+.dynamic-input-label-wrapper.luminex-wrapper label {
+  color: rgba(255, 255, 255, 0.5);
+  background-image: linear-gradient(
+    transparent 30%,
+    var(--color-luminex-input) 45% 55%,
+    transparent 55%,
+    transparent
+  );
+}
+
+.dynamic-input-label-wrapper.luminex-wrapper input:not(:placeholder-shown) ~ label,
+.dynamic-input-label-wrapper.luminex-wrapper input:-webkit-autofill ~ label,
+.dynamic-input-label-wrapper.luminex-wrapper input:focus ~ label,
+.dynamic-input-label-wrapper.luminex-wrapper.is-focused label,
+.dynamic-input-label-wrapper.luminex-wrapper.has-content label {
+  color: #fff !important;
+}
+
+.dynamic-input-label-wrapper.luminex-wrapper input:focus {
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.dynamic-input-label-wrapper.luminex-wrapper input,
+.dynamic-input-label-wrapper.luminex-wrapper .hosted-field {
+  border-color: rgba(255, 255, 255, 0.3);
+  background-color: var(--color-luminex-input);
+  color: #fff;
+}
+
+/* Force dark theme styling on browser autofill */
+.dynamic-input-label-wrapper.luminex-wrapper input:-webkit-autofill,
+.dynamic-input-label-wrapper.luminex-wrapper input:-webkit-autofill:hover,
+.dynamic-input-label-wrapper.luminex-wrapper input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-luminex-input) inset !important;
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.dynamic-input-label-wrapper.luminex-wrapper input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-luminex-input) inset !important;
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Loading state label gradient */
+.dynamic-input-label-wrapper.luminex-wrapper.hosted-field-wrapper.is-loading label {
+  background-image: linear-gradient(
+    transparent 30%,
+    var(--color-luminex-input) 45% 55%,
+    transparent 55%,
+    transparent
+  );
+}
+
+.dynamic-input-label-wrapper.luminex-wrapper input:focus,
+.dynamic-input-label-wrapper.luminex-wrapper.is-focused .hosted-field {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Dark theme for hosted fields */
+.dynamic-input-label-wrapper.hosted-field-wrapper.luminex-wrapper.is-focused label,
+.dynamic-input-label-wrapper.hosted-field-wrapper.luminex-wrapper.has-content label {
+  color: #fff !important;
+}
+
+/* Hide reCAPTCHA badge - required text notice is shown in RecaptchaNotice component */
+.grecaptcha-badge {
+  visibility: hidden;
+}

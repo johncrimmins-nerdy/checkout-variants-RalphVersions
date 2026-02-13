@@ -1,0 +1,24 @@
+name: Create Release and Deploy to Netlify (production)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+env:
+  GEMFURY_TOKEN: ${{ secrets.GEMFURY_TOKEN }}
+  VT_GITHUB_TOKEN: ${{ secrets.VT_GITHUB_TOKEN }}
+
+jobs:
+  create-release:
+    uses: ./.github/workflows/_create-release.yml
+    secrets: inherit
+    with:
+      draft: false
+
+  deploy:
+    needs: create-release
+    uses: ./.github/workflows/_deploy-production.yml
+    secrets: inherit

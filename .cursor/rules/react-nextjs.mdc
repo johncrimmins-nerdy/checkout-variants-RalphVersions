@@ -1,0 +1,96 @@
+---
+description: React and NextJS files
+alwaysApply: false
+---
+
+# React & NextJS Best Practices
+
+## React Development
+
+### Component Structure
+
+- Use functional components with hooks
+- Prefer composition over inheritance
+- Keep components focused on single responsibility
+- Keep clear separation of concerns per layer
+- Handle errors and edge cases early in functions
+
+### Performance Optimization
+
+- Wrap components with `React.memo()` when props don't change frequently
+- Use `useMemo()` for expensive calculations
+- Use `useCallback()` for event handlers passed to children
+- Avoid creating objects/functions in render
+- Avoid unnecessary re-renders
+- Don't apply microoptimizations. Only optimize code where it's really needed.
+- Use Next.js 15 optimizations: server components, static generation, and image optimization
+
+### State Management
+
+- Use stable reference dependencies in hooks
+- Minimize React re-rendering with proper dependency arrays
+- Place happy path last in functions for better readability
+
+### Error Handling
+
+- Implement proper error boundaries
+- Use guard clauses for preconditions and invalid states
+- Avoid unnecessary else statements - use early returns
+
+## NextJS 15 Best Practices
+
+### Routing & Navigation (App Router)
+
+- Follow NextJS 15 App Router file-based routing conventions
+- Use `page.tsx` for route components, `layout.tsx` for layouts
+- Use `loading.tsx` and `error.tsx` for loading and error states
+- Implement proper loading states with Suspense boundaries
+- Use `not-found.tsx` for custom 404 pages
+
+### Performance Features
+
+- Use Server Components by default, Client Components only when needed
+- Utilize built-in `next/image` component for optimized images
+- Use dynamic imports for code splitting
+- Leverage NextJS built-in performance optimizations (prefetching, static generation)
+- Use `generateStaticParams` for dynamic routes with static generation
+
+### SEO & Metadata
+
+- Use Next.js 15 Metadata API for dynamic meta tags
+- Implement structured data with `schema-dts`
+- Use proper Open Graph tags and Twitter cards
+- Generate XML sitemaps programmatically
+
+### Testing
+
+- Use Playwright for end-to-end testing
+- Use Testing Library for component testing (when needed)
+- Follow testing best practices: Arrange-Act-Assert pattern
+- Test user behavior, not implementation details
+- Use descriptive test names that explain the expected behavior
+
+## Code Quality
+
+### Naming Conventions
+
+- Use camelCase for variables, functions, and methods
+- Use verbs for boolean variables (isLoading, hasError, canDelete)
+- Use complete words instead of abbreviations
+
+### Import Organization
+
+1. Type imports first (with blank line after)
+2. External library imports
+3. Internal imports (components, then utilities/hooks)
+4. Sort alphabetically within each group
+
+Example:
+
+```typescript
+import type { ComponentProps } from 'react'
+
+import { useState, useEffect } from 'react'
+import Button from '../components/button'
+import { formatDate } from '../utils/date-utils'
+```

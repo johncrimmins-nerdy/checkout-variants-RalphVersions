@@ -1,0 +1,44 @@
+name: Create Release
+
+on:
+  workflow_call:
+    inputs:
+      draft:
+        description: 'Create as draft release'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DATE=$(date -u +%Y-%m-%d_%H-%M-%S)
+          TAG_NAME="release-${DATE}"
+
+          if [ "${{ inputs.draft }}" == "true" ]; then
+            DRAFT_FLAG="--draft"
+          else
+            DRAFT_FLAG=""
+          fi
+
+          gh release create "${TAG_NAME}" \
+            --target "main" \
+            --title "Release of tutors-gallery ${DATE}" \
+            --generate-notes \
+            ${DRAFT_FLAG}
+
+          echo "Created release ${TAG_NAME}"

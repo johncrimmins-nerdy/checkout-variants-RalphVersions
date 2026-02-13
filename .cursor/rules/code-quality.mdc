@@ -1,0 +1,31 @@
+---
+alwaysApply: true
+---
+
+# Code Quality Supplement
+
+## Project-Specific Quality Standards
+
+### Mathematical Content Handling
+
+- **MathJax Integration**: Ensure mathematical expressions render correctly in SSR
+- **LaTeX Formatting**: Use proper LaTeX syntax for mathematical notation
+- **Performance**: Optimize MathJax rendering for large content sets
+
+### Educational Content Standards
+
+- **Content Validation**: Validate educational content against curriculum standards
+- **Accessibility**: Ensure mathematical content is accessible to screen readers
+- **Multi-subject Support**: Handle diverse subject areas (math, science, language arts)
+
+### Supabase Integration
+
+- **Error Handling**: Always use `.throwOnError()` unless explicitly handling errors
+- **Cache Invalidation**: Use `.select()` after `.insert()` or `.update()` for SWR cache updates
+- **Type Safety**: Use generated database types for all Supabase queries
+
+### Performance Considerations
+
+- **Large Dataset Handling**: Optimize for handling thousands of subjects and questions
+- **Static Generation**: Use `generateStaticParams` for subject-based routes
+- **Image Optimization**: Use Next.js Image component for all educational assets

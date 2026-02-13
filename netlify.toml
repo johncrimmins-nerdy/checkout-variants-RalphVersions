@@ -1,0 +1,77 @@
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22.13.1"
+  NPM_FLAGS = "--legacy-peer-deps"
+  # Source maps disabled by default (enabled per-context)
+  UPLOAD_SOURCEMAPS = "false"
+  # Default environment variables (used when no specific context matches)
+  NEXT_PUBLIC_ENV = "staging"
+  NEXT_PUBLIC_API_DOMAIN = "api.vtstaging.com"
+  NEXT_PUBLIC_BASE_PATH = "/checkout"
+  NEXT_PUBLIC_HOST = "https://www.vtstaging.com"
+  NEXT_PUBLIC_VT_HOST = "https://www.vtstaging.com"
+  NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID = "62a2ab2d28bf9c15a88209b1"
+  NEXT_PUBLIC_PAYPAL_CLIENT_ID = "AedoJj3jJtx929AETHlUzb3RIAt7uut5uLo5DOSZOQ5D2SXnFT6EXl7SJmNCDKyLs_M9KGhTxETVorVn"
+  NEXT_PUBLIC_RECAPTCHA_SITE_KEY = "6Lcj7zAsAAAAAP1M9njzJlMa1v_386xPDP-jcAxm"
+  NEXT_PUBLIC_META_PIXEL_ID = "777464751291522"
+
+# Redirect root to base path
+[[redirects]]
+  from = "/"
+  to = "/checkout/"
+  status = 302
+
+[[redirects]]
+  from = "/checkout/*"
+  to = "/checkout/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404
+
+[context.production.environment]
+  NEXT_PUBLIC_ENV = "production"
+  NEXT_PUBLIC_API_DOMAIN = "api.varsitytutors.com"
+  NEXT_PUBLIC_WEB_DOMAIN = "www.varsitytutors.com"
+  NEXT_PUBLIC_BASE_PATH = "/checkout"
+  NEXT_PUBLIC_HOST = "https://www.varsitytutors.com"
+  NEXT_PUBLIC_VT_HOST = "https://www.varsitytutors.com"
+  NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID = "62a2ab2d28bf9c15a88209b2"
+  NEXT_PUBLIC_PAYPAL_CLIENT_ID = "AcCqm3qvxaZoIqV45Tv7ZmrQBeAIFHfioLusdyE6NUcLQbJjySdQRsSLwyExI0E33tHYbt8SkAdpDD5a"
+  NEXT_PUBLIC_RECAPTCHA_SITE_KEY = "6LfuLiErAAAAAEJY-iPdbidEphXGmNmFavfPsplB"
+  NEXT_PUBLIC_META_PIXEL_ID = "211289309228445"
+
+[context.deploy-preview.environment]
+  NEXT_PUBLIC_ENV = "preview"
+  NEXT_PUBLIC_API_DOMAIN = "api.vtstaging.com"
+  NEXT_PUBLIC_WEB_DOMAIN = "www.vtstaging.com"
+  NEXT_PUBLIC_BASE_PATH = "/checkout"
+  NEXT_PUBLIC_HOST = "https://www.vtstaging.com"
+  NEXT_PUBLIC_VT_HOST = "https://www.vtstaging.com"
+  NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID = "62a2ab2d28bf9c15a88209b1"
+  NEXT_PUBLIC_PAYPAL_CLIENT_ID = "AedoJj3jJtx929AETHlUzb3RIAt7uut5uLo5DOSZOQ5D2SXnFT6EXl7SJmNCDKyLs_M9KGhTxETVorVn"
+  NEXT_PUBLIC_RECAPTCHA_SITE_KEY = "6Lcj7zAsAAAAAP1M9njzJlMa1v_386xPDP-jcAxm"
+
+# Branch deploy (main branch → staging)
+# Only generate and upload source maps for main branch
+[context.branch-deploy]
+  command = "if [ \"$BRANCH\" = \"main\" ]; then UPLOAD_SOURCEMAPS=true npm run build && npm run upload-sourcemaps; else npm run build; fi"
+
+[context.branch-deploy.environment]
+  NEXT_PUBLIC_ENV = "staging"
+  NEXT_PUBLIC_API_DOMAIN = "api.vtstaging.com"
+  NEXT_PUBLIC_WEB_DOMAIN = "www.vtstaging.com"
+  NEXT_PUBLIC_BASE_PATH = "/checkout"
+  NEXT_PUBLIC_HOST = "https://www.vtstaging.com"
+  NEXT_PUBLIC_VT_HOST = "https://www.vtstaging.com"
+  NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_ID = "62a2ab2d28bf9c15a88209b1"
+  NEXT_PUBLIC_PAYPAL_CLIENT_ID = "AedoJj3jJtx929AETHlUzb3RIAt7uut5uLo5DOSZOQ5D2SXnFT6EXl7SJmNCDKyLs_M9KGhTxETVorVn"
+  NEXT_PUBLIC_RECAPTCHA_SITE_KEY = "6Lcj7zAsAAAAAP1M9njzJlMa1v_386xPDP-jcAxm"

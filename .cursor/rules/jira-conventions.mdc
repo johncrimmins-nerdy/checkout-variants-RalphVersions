@@ -1,0 +1,70 @@
+---
+description: Jira ticket conventions for Practice Tests project
+alwaysApply: true
+---
+
+# Jira Ticket Conventions
+
+## Project Configuration
+
+**All tickets for the Practice Tests project must follow these conventions:**
+
+### Board & Epic
+
+- **Project Board**: MEX
+- **Parent Epic**: MEX-14364 (Practice Hub)
+- **Project Key**: Use "MEX" when creating tickets
+
+### When Creating Tickets
+
+When asked to create a Jira ticket for this project:
+
+1. **Use the MEX board** - Project key should be "MEX"
+2. **Link to Practice Hub epic** - Set `parentKey` to "MEX-14364"
+3. **Follow naming conventions** - Start ticket summary with ticket number (e.g., "MEX-XXXXX: Description")
+4. **Include technical details** - Add root cause, steps to reproduce, and expected behavior
+5. **Assign appropriately** - Assign to the requester or leave unassigned per team conventions
+
+### Example Ticket Creation
+
+```typescript
+mcp_eng-mcp-server_jira_create_ticket({
+  projectKey: "MEX",
+  summary: "Fix feature X bug in practice tests",
+  description: "## Problem\n...\n## Solution\n...",
+  issueType: "Bug",
+  parentKey: "MEX-14364" // Practice Hub epic
+})
+```
+
+### Branch Naming
+
+Branch names should follow the pattern:
+```
+MEX-{ticket-number}-{brief-description}
+```
+
+Example: `MEX-14461-fix-challenge-invite-404`
+
+### Commit Messages
+
+Commit messages should reference the ticket number:
+```
+MEX-{ticket-number}: Brief description
+
+- Detailed change 1
+- Detailed change 2
+```
+
+Example:
+```
+MEX-14461: Fix challenge invite 404 by using API_BASE for endpoint
+
+- Changed hardcoded '/api/challenge/invite' to use ${API_BASE}/challenge/invite
+- Ensures proper base path handling (e.g., /practice/api/challenge/invite)
+```
+
+## Related Documentation
+
+- Epic: https://varsity.atlassian.net/browse/MEX-14364
+- Jira Board: https://varsity.atlassian.net/jira/software/c/projects/MEX/boards
